@@ -18,7 +18,7 @@ for input_dir in input_dirs:
     aspect_ratio = float(width)/float(height)
     video_size   = (int(1080*aspect_ratio), 1080)
 
-    out = cv2.VideoWriter('{0}.mov'.format(input_dir), fourcc, 24.0, video_size, isColor=True)
+    out = cv2.VideoWriter('{0}.raw'.format(input_dir.rstrip('/')), fourcc, 24.0, video_size, isColor=True)
 
     n = len(l)-1
     pbar = ProgressBar(widgets=widgets, maxval=n).start()
@@ -34,3 +34,5 @@ for input_dir in input_dirs:
 
     pbar.finish()
     out.release()
+
+    os.rename('{0}.raw'.format(input_dir.rstrip('/')), '{0}.mov'.format(input_dir.rstrip('/')))

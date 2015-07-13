@@ -30,7 +30,7 @@ for input_dir in input_dirs:
     new_g.SetMarkerSize(0.2)
     new_g.Draw('SAMEP')
     
-    canvas.Print('{0}-smoothing.png'.format(input_dir))
+    canvas.Print('{0}-smoothing.png'.format(input_dir.rstrip('/')))
     
     output_dir = input_dir + '_smooth'
     

@@ -9,7 +9,7 @@ for input_dir in input_dirs:
 
     print 'Processing {0} ...'.format(input_dir)
 
-    smooth_file = ROOT.TFile('smooth-{0}.root'.format(input_dir), 'RECREATE')
+    smooth_file = ROOT.TFile('smooth-{0}.root'.format(input_dir.rstrip('/')), 'RECREATE')
     
     l = os.listdir(input_dir)
     
@@ -58,4 +58,4 @@ for input_dir in input_dirs:
     graph_avg_blue.SetMarkerStyle(20)
     graph_avg_blue.SetMarkerSize(0.2)
     graph_avg_blue.Draw('P')
-    canvas.Print('{0}.png'.format(input_dir))
+    canvas.Print('{0}.png'.format(input_dir.rstrip('/')))
