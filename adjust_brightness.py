@@ -1,11 +1,14 @@
-import ROOT, plotting
-from PIL import Image, ImageEnhance
-import os, sys
+import cv2, ROOT, plotting, os, sys, numpy as np
+from progressbar import *
 
 input_dirs = sys.argv[1].split(',')
 
+widgets = [Percentage(), ' ', Bar(marker='*'), ' ', ETA()]
+
 for input_dir in input_dirs:
     
+    print 'Processing {0} ...'.format(input_dir)
+
     ff = ROOT.TFile('smooth-{0}.root'.format(input_dir))
     g = ff.Get('avg_blue')
     h = plotting.graph_to_histogram(g)
@@ -27,8 +30,6 @@ for input_dir in input_dirs:
     new_g.SetMarkerSize(0.2)
     new_g.Draw('SAMEP')
     
-    print g.GetN(), new_g.GetN()
-    
     canvas.Print('{0}-smoothing.png'.format(input_dir))
     
     output_dir = input_dir + '_smooth'
@@ -45,8 +46,11 @@ for input_dir in input_dirs:
     x = ROOT.Double()
     y1 = ROOT.Double()
     y2 = ROOT.Double()
+
+    n = len(l)-1
+    pbar = ProgressBar(widgets=widgets, maxval=n).start()
     
-    for i in range(len(l)-1):
+    for i in range(n):
     
         if not '.jpg' in l[i]: continue
     
@@ -58,12 +62,12 @@ for input_dir in input_dirs:
     
         correction_factor = 1.0 - (y1 - y2)/y2
     
-        print os.path.join(input_dir, l[i])
-        img = Image.open(os.path.join(input_dir, l[i]))
+        img = cv2.imread(os.path.join(input_dir, l[i]))
     
-        print 'correction factor:', correction_factor
+        new_img = np.multiply(correction_factor, img)
     
-        enhancer = ImageEnhance.Brightness(img)
-        new_img = enhancer.enhance(correction_factor)
-    
-        new_img.save(os.path.join(output_dir, 'IMG_{0}.jpg'.format(number_original)))
+        cv2.imwrite(os.path.join(output_dir, 'IMG_{0}.jpg'.format(number_original)), new_img)
+
+        pbar.update(i)
+
+    pbar.finish()

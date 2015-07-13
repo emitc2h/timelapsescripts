@@ -1,10 +1,13 @@
-from PIL import Image
-import ROOT
-import os, sys
+import cv2, ROOT, os, sys, numpy as np
+from progressbar import *
 
 input_dirs = sys.argv[1].split(',')
 
+widgets = [Percentage(), ' ', Bar(marker='*'), ' ', ETA()]
+
 for input_dir in input_dirs:
+
+    print 'Processing {0} ...'.format(input_dir)
 
     smooth_file = ROOT.TFile('smooth-{0}.root'.format(input_dir), 'RECREATE')
     
@@ -17,23 +20,23 @@ for input_dir in input_dirs:
     graph_avg_blue = ROOT.TGraph()
     graph_avg_blue.SetName('avg_blue')
     
-    for i in range(len(l)-1):
+    n = len(l)-1
+    pbar = ProgressBar(widgets=widgets, maxval=n).start()
+
+    for i in range(n):
     
         if not '.jpg' in l[i]: continue
     
-        print os.path.join(input_dir, l[i])
-        img = Image.open(os.path.join(input_dir, l[i]))
-    
-        y = img.getextrema()
-        data = img.getdata()
-        blue = [pixel[2] for pixel in data]
-        avg = sum(blue)/float(len(blue))
-    
-        print avg
-    
-        graph_min_blue.SetPoint(i, i, y[2][0])
-        graph_max_blue.SetPoint(i, i, y[2][1])
-        graph_avg_blue.SetPoint(i, i, avg)
+        img  = cv2.imread(os.path.join(input_dir, l[i]))
+        blue = cv2.split(img)[0]
+
+        graph_min_blue.SetPoint(i, i, blue.min())
+        graph_max_blue.SetPoint(i, i, blue.max())
+        graph_avg_blue.SetPoint(i, i, np.average(blue))
+
+        pbar.update(i)
+
+    pbar.finish()
     
     graph_min_blue.Write()
     graph_max_blue.Write()
@@ -56,4 +59,3 @@ for input_dir in input_dirs:
     graph_avg_blue.SetMarkerSize(0.2)
     graph_avg_blue.Draw('P')
     canvas.Print('{0}.png'.format(input_dir))
-
