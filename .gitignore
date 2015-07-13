@@ -55,3 +55,11 @@ docs/_build/
 
 # PyBuilder
 target/
+
+*.png
+*.root
+*.mov
+*.mp4
+*.raw
+.DS_Store
+TL*/
