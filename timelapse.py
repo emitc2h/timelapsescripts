@@ -12,6 +12,7 @@ for input_dir in input_dirs:
     print 'Processing {0} ...'.format(input_dir)
 
     l = os.listdir(input_dir)
+    l = [f for f in l if f.lower().endswith('.jpg')]
 
     img  = cv2.imread(os.path.join(input_dir, l[0]))
     height, width, channels = img.shape
@@ -24,8 +25,6 @@ for input_dir in input_dirs:
     pbar = ProgressBar(widgets=widgets, maxval=n).start()
 
     for i in range(n):
-    
-        if not '.jpg' in l[i]: continue
     
         img  = cv2.imread(os.path.join(input_dir, l[i]))
         out.write(cv2.resize(img, video_size))
