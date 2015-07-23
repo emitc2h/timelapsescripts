@@ -5,14 +5,8 @@ input_dirs = sys.argv[1].split(',')
 
 widgets = [Percentage(), ' ', Bar(marker='*'), ' ', ETA()]
 
-for input_dir in input_dirs:
+def make_corrected_iso(g_iso, g_avg):
     
-    print 'Processing {0} ...'.format(input_dir)
-
-    ff = ROOT.TFile('smooth-iso-{0}.root'.format(input_dir))
-    g_avg = ff.Get('avg')
-    g_iso = ff.Get('iso')
-
     ## Prepare stitching variables
     avg_i, avg = ROOT.Double(), ROOT.Double()
     iso_i, iso = ROOT.Double(), ROOT.Double()
@@ -35,6 +29,7 @@ for input_dir in input_dirs:
         g_iso.GetPoint(i, iso_i, iso)
         g_avg.GetPoint(i, avg_i, avg)
 
+        ## Find minimum and maximums
         if avg > max_avg: max_avg = float(avg)
         if avg < min_avg: min_avg = float(avg)
 
@@ -54,10 +49,20 @@ for input_dir in input_dirs:
     range_avg = max_avg - min_avg
     range_new = max_new - min_new
 
-    print range_avg, range_new
-
     def linear_mapping(y):
         return (y - min_new)*(range_avg/range_new) + min_avg
+
+    return g_new, linear_mapping
+
+for input_dir in input_dirs:
+    
+    print 'Processing {0} ...'.format(input_dir)
+
+    ff = ROOT.TFile('iso-{0}.root'.format(input_dir))
+    g_blue  = ff.Get('blue')
+    g_green = ff.Get('green')
+    g_red   = ff.Get('red')
+    g_iso = ff.Get('iso')
 
     for i in range(g_avg.GetN()):
         g_new.GetPoint(i, avg_i, avg)
@@ -109,7 +114,7 @@ for input_dir in input_dirs:
     
         img = cv2.imread(os.path.join(input_dir, l[i]))
     
-        new_img = np.multiply(img, correction_factor)
+        new_img = cv2.multiply(img, np.array([correction_factor])
     
         cv2.imwrite(os.path.join(output_dir, 'IMG_{0}.jpg'.format(number_original)), new_img)
 

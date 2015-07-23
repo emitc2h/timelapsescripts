@@ -16,9 +16,9 @@ for input_dir in input_dirs:
 
     img  = cv2.imread(os.path.join(input_dir, l[0]))
     height, width, channels = img.shape
-    aspect_ratio = float(width)/float(height)
+    aspect_ratio = float(width-422)/float(height-574)
     video_size   = (int(1080*aspect_ratio), 1080)
-    size_ratio   = int((height)/1080.0)
+    size_ratio   = int((height-574)/1080.0)
     if size_ratio%2==0:
         size_ratio += 1
 
@@ -30,6 +30,7 @@ for input_dir in input_dirs:
     for i in range(n):
     
         img = cv2.imread(os.path.join(input_dir, l[i]))
+        img = img[574:height, 422:width]
         img = cv2.GaussianBlur(img, (size_ratio, size_ratio), 0)
         img = cv2.resize(img, video_size)
         out.write(img)
